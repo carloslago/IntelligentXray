@@ -29,16 +29,14 @@ types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opaci
     
 '''
 train_dataGen = ImageDataGenerator(rescale = 1./255,
-                                   horizontal_flip=True,
-                                   zca_whitening=True,
-                                   # samplewise_std_normalization=True,
+                                   horizontal_flip=True,                                   # samplewise_std_normalization=True,
                                    zoom_range=0.2
                                    )
 
 datagen = ImageDataGenerator(rescale=1./255)
 BATCH_SIZE = 8
 
-dataframe_train = training_set[:4000]
+dataframe_train = training_set[:5000]
 steps_train = len(dataframe_train)/BATCH_SIZE
 steps_train = round(steps_train+0.5)
 train_generator = train_dataGen.flow_from_dataframe(
@@ -57,7 +55,7 @@ train_generator = train_dataGen.flow_from_dataframe(
 #     plt.imshow(image)
 #     plt.show()
 
-test_set = pd.concat([training_set[4000:4500], valid_set])
+test_set = pd.concat([training_set[5000:], valid_set])
 dataframe_valid = test_set
 steps_valid = len(dataframe_valid)/BATCH_SIZE
 steps_valid = round(steps_valid+0.5)
@@ -75,6 +73,8 @@ inputShape = (224, 224, 3)
 model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
     tf.keras.layers.Flatten(),
+    # tf.keras.layers.Dropout(0.5),
+    tf.keras.layers.BatchNormalization(),
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
 
@@ -105,7 +105,7 @@ model1.compile(optimizer=Adam(lr=0.0001), loss = 'binary_crossentropy', metrics 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_frontal'+ date +'.csv')
-early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min')
+early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1)
 model_path = 'saved_models/best_model_frontal'+date+'.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss',  mode='min', verbose=1)
 history = model1.fit_generator(train_generator, epochs = 15,
