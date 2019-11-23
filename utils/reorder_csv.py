@@ -6,9 +6,10 @@ from pathlib import Path, PureWindowsPath
 
 p = PureWindowsPath(Path().absolute())
 
-option = 'frontal'
+option = 'all'
 csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
-csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\train_'+option+'_5.csv'
+csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\train_'+option+'_6.csv'
+# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid_all.csv'
 
 pathologies = []
 cont = 0
@@ -26,14 +27,14 @@ with open(csv_path) as csv_file:
     for row in csv_reader:
         del row[1:5]
         if cont ==0:
-            pathologies = row[1:]
-            for i in range(len(pathologies)):
+            pathologies = row
+            for i in range(1,len(pathologies)):
                 pathologies[i] = pathologies[i].replace(' ', '_')
             imgs.append(pathologies)
         else:
             data = row
             certain = 0
-            if option in data[0]:
+            if option in data[0] or option=="all":
                 for i in range(1,len(data)):
                     if len(data[i]) == 0:
                         data[i] = 0
@@ -45,7 +46,7 @@ with open(csv_path) as csv_file:
                     else:
                         certain+=1
                         data[i] = 0
-            if certain>4:
+            if certain>5:
                 imgs.append(data)
             certain = 0
         # if cont>100: break

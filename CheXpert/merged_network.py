@@ -12,8 +12,8 @@ from datetime import datetime
 
 train_dir = os.path.join('CheXpert-v1.0-small/train')
 val_dir = os.path.join('CheXpert-v1.0-small/valid')
-training_set = pd.read_csv("CheXpert-v1.0-small/csv/top/train_lateral_5.csv")
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_lateral.csv")
+training_set = pd.read_csv("CheXpert-v1.0-small/csv/top/train_all_6.csv")
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_all.csv")
 
 types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
@@ -101,10 +101,10 @@ model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['
 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
-csv_logger = CSVLogger('logs/log_lateral' + date + '.csv')
+csv_logger = CSVLogger('logs/log_all' + date + '.csv')
 #min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
 early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1)
-model_path = 'saved_models/best_model_lateral' + date + '.h5'
+model_path = 'saved_models/best_model_all' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
 history = model1.fit_generator(train_generator, epochs=15,
                                steps_per_epoch=steps_train,
