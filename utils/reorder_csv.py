@@ -6,10 +6,14 @@ from pathlib import Path, PureWindowsPath
 
 p = PureWindowsPath(Path().absolute())
 
-option = 'all'
+option = 'lateral'
 csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
-csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\train_'+option+'_6.csv'
+csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\train_'+option+'_mix.csv'
 # csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid_all.csv'
+
+
+u_zeros = [0, 2, 3, 4, 6, 10, 12, 13]
+u_ones = [1, 5, 7, 8, 9, 11]
 
 pathologies = []
 cont = 0
@@ -42,11 +46,14 @@ with open(csv_path) as csv_file:
                         data[i] = 1
                         certain +=1
                     elif int(float(data[i])) == uncertain:
-                        data[i] = 0
+                        if i in u_ones:
+                            data[i] = 1
+                        else:
+                            data[i] = 0
                     else:
                         certain+=1
                         data[i] = 0
-            if certain>5:
+            if certain>4:
                 imgs.append(data)
             certain = 0
         # if cont>100: break

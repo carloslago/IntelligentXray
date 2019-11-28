@@ -28,8 +28,9 @@ types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opaci
 
 '''
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
-                                   horizontal_flip=True,  # samplewise_std_normalization=True,
-                                   zoom_range=0.2
+                                horizontal_flip=True,
+                                featurewise_std_normalization=True,
+                                   # zoom_range=0.2
                                    )
 
 datagen = ImageDataGenerator(rescale=1. / 255)
@@ -73,6 +74,7 @@ inputShape = (224, 224, 3)
 model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
     tf.keras.layers.Flatten(),
+    tf.keras.layers.BatchNormalization(),
     # tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
@@ -103,7 +105,8 @@ date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_lateral' + date + '.csv')
 #min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
-early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1)
+# early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
 model_path = 'saved_models/best_model_lateral' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
 history = model1.fit_generator(train_generator, epochs=15,
