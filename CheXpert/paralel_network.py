@@ -2,117 +2,154 @@ import tensorflow as tf
 from keras_preprocessing.image import ImageDataGenerator
 import os
 import matplotlib.pyplot as plt
+from tensorflow.keras.optimizers import RMSprop, Adam
 import pandas as pd
+from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
+from datetime import datetime
+
+# gpu_options = tf.GPUOptions(allow_growth=True)
+# session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
+
+# def generator_two_img(X1, X2, y, batch_size):
+#     genX1 = gen.flow(X1, y,  batch_size=batch_size, seed=1)
+#     genX2 = gen.flow(X2, y, batch_size=batch_size, seed=1)
+#     while True:
+#         X1i = genX1.next()
+#         X2i = genX2.next()
+#         yield [X1i[0], X2i[0]], X1i[1]
 
 
-train_dir = os.path.join('CheXpert-v1.0-small/train')
-val_dir = os.path.join('CheXpert-v1.0-small/valid')
-training_prev = pd.read_csv("CheXpert-v1.0-small/train.csv")
-training_imgs = list(training_prev['Path'])
 types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
-         'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural Other',
-         'Fracture', 'Support Devices']
+         'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
+         'Fracture', 'Support_Devices']
+
+def generate_generator_multiple(generator, dt1, dt2, batch_size, img_height, img_width):
+    genX1 = generator.flow_from_dataframe(dataframe=dt1,
+                                          directory="",
+                                          x_col="Path",
+                                          y_col=types,
+                                          class_mode="raw",
+                                          color_mode="rgb",
+                                          target_size=(img_height, img_width),
+                                          batch_size=batch_size,
+                                          shuffle=False)
+
+    genX2 = generator.flow_from_dataframe(dataframe=dt2,
+                                          directory="",
+                                          x_col="Path",
+                                          y_col=types,
+                                          class_mode="raw",
+                                          color_mode="rgb",
+                                          target_size=(img_height, img_width),
+                                          batch_size=batch_size,
+                                          shuffle=False)
+    while True:
+        X1i = genX1.next()
+        X2i = genX2.next()
+        yield [X1i[0], X2i[0]], X2i[1]  # Yield both images and their mutual label
 
 
-training_set = pd.DataFrame({'Images': training_imgs})
-for t in types[:5]:
-    training_set[t] = list(training_prev[t.replace('_', ' ')])
-    training_set[t] = training_set[t].astype(int)
-    training_set[t] = training_set[t].astype(str)
+train_dataGen = ImageDataGenerator(rescale=1. / 255,
+                                   # width_shift_range=0.2,
+                                   # height_shift_range=0.2,
+                                   # shear_range=0.2,
+                                   zoom_range=0.2,
+                                   horizontal_flip=True,
+                                   # fill_mode='nearest'
+                                   )
+
+test_imgen = ImageDataGenerator(rescale = 1./255)
+
+training_set_frontal = pd.read_csv("CheXpert-v1.0-small/csv/paralel/train_paralel_frontal.csv")
+training_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/train_paralel_lateral.csv")
+valid_set_frontal = pd.read_csv("CheXpert-v1.0-small/csv/paralel/valid_paralel_frontal.csv")
+valid_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/valid_paralel_lateral.csv")
 
 
 
-training_set['New_class'] = training_set['No_Finding'] + training_set['Enlarged_Cardiomediastinum']  + \
-                            training_set['Cardiomegaly'] + training_set['Lung_Opacity'] + \
-                            training_set['Lung_Lesion']
+BATCH_SIZE = 8
 
-train_dataGen = ImageDataGenerator(rescale = 1./255,
-                                  shear_range = 0.2,
-                                  zoom_range = 0.2,)
-
-train_generator = train_dataGen.flow_from_dataframe(
-                                        dataframe = training_set,
-                                        directory="",x_col="Images",
-                                        y_col="New_class",
-                                        class_mode="categorical",
-                                        target_size=(224,224),
-                                        batch_size=8)
-
-print(train_generator.class_indices)
+dataframe_train = training_set_frontal
+steps_train = len(dataframe_train) / BATCH_SIZE
+steps_train = round(steps_train + 0.5)
 
 
-# model = tf.keras.models.Sequential([
-#     tf.keras.layers.Conv2D(filters = 56,kernel_size = (3,3), activation = 'relu', input_shape = (224,224,3)),
-#     tf.keras.layers.MaxPooling2D(2, 2),
-#     tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-#     tf.keras.layers.MaxPooling2D(2,2),
-#     tf.keras.layers.Flatten(),
-#     tf.keras.layers.Dense(512, activation='relu'),
-#     tf.keras.layers.Dense(8, activation='softmax')
-# ])
-#
-# model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['categorical_accuracy','accuracy'])
-#
-# model.fit_generator(train_generator, epochs = 10, steps_per_epoch = 20 )
+test_set = valid_set_frontal
+dataframe_valid = test_set
+steps_valid = len(dataframe_valid) / BATCH_SIZE
+steps_valid = round(steps_valid + 0.5)
 
-# datagen = ImageDataGenerator(rescale=1/255)
-# training_datagen = ImageDataGenerator(rescale=1/255, rotation_range=30, zoom_range=0.3)
-
-# train_generator = datagen.flow_from_directory(
-#     directory=train_dir,
-#     target_size=(224, 224),
-#     color_mode="grayscale",
-#     batch_size=64,
-#     class_mode="categorical"
-# )
-#
-# validation_generator = datagen.flow_from_directory(
-#     directory=val_dir,
-#     target_size=(224, 224),
-#     color_mode="grayscale",
-#     batch_size=64,
-#     class_mode="categorical"
-# )
-
-'''
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(224, 224, 1)),
+inputShape = (224, 224, 3)
+chanDim = -1
+model1 = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=inputShape),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
+    tf.keras.layers.MaxPooling2D(3, 3),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
+    tf.keras.layers.MaxPooling2D(3, 3),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
     tf.keras.layers.MaxPooling2D(2, 2),
-    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-    tf.keras.layers.MaxPooling2D(2,2),
-    tf.keras.layers.BatchNormalization(axis=1),
-    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-    tf.keras.layers.MaxPooling2D(2,2),
-    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-    tf.keras.layers.MaxPooling2D(2,2),
-    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-    tf.keras.layers.MaxPooling2D(2,2),
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(512, activation='relu'),
-    tf.keras.layers.Dense(1, activation='sigmoid')
 ])
 
-# print(model.summary())
+model2 = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=inputShape),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
+    tf.keras.layers.MaxPooling2D(3, 3),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
+    tf.keras.layers.MaxPooling2D(3, 3),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.BatchNormalization(axis=chanDim),
+    tf.keras.layers.MaxPooling2D(2, 2),
+    tf.keras.layers.Flatten(),
+])
 
-model.compile(loss='binary_crossentropy',
-              optimizer=Adam(lr=0.0001, decay=1e-5),
-              metrics=['acc'])
+combined = tf.keras.layers.concatenate([model1.output, model2.output])
 
-# Fitting the model, in this case using the test_generator to plot afterwards the results.
-history = model.fit_generator(generator=train_generator,
-                    validation_data=test_generator,
-                    steps_per_epoch=67,
-                    validation_steps=22,
-                    epochs= 15,
-                    verbose = 1
-)
+z = tf.keras.layers.BatchNormalization() (combined)
+z = tf.keras.layers.Dense(512, activation='relu') (z)
+z = tf.keras.layers.BatchNormalization() (z)
+z = tf.keras.layers.Dense(14, activation='sigmoid') (z)
 
-model.save('t_network.h5')
+model = tf.keras.Model(inputs=[model1.input, model2.input], outputs=z)
+
+print(model.summary())
+
+inputgenerator=generate_generator_multiple(generator=train_dataGen,
+                                           dt1=training_set_frontal,
+                                           dt2=training_set_lateral,
+                                           batch_size=BATCH_SIZE,
+                                           img_height=224,
+                                           img_width=224)
+
+testgenerator=generate_generator_multiple(generator=test_imgen,
+                                           dt1=valid_set_frontal,
+                                           dt2=valid_set_lateral,
+                                           batch_size=BATCH_SIZE,
+                                           img_height=224,
+                                           img_width=224)
 
 
-# Plot training and test acc and loss
-print(history.history.keys())
-# summarize history for accuracy
+
+model.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc'])
+
+date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
+
+csv_logger = CSVLogger('logs/log_paralel' + date + '.csv')
+#min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
+# early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
+model_path = 'saved_models/best_model_paralel' + date + '.h5'
+mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
+history = model.fit_generator(inputgenerator, epochs=20,
+                               steps_per_epoch=steps_train,
+                               validation_data=testgenerator,
+                               validation_steps=steps_valid,
+                               callbacks=[csv_logger, mc])
+
 plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
 plt.title('model accuracy')
@@ -120,7 +157,6 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
-# summarize history for loss
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('model loss')
@@ -128,4 +164,6 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
-'''
+
+
+

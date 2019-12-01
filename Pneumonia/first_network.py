@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras_preprocessing.image import ImageDataGenerator
 import os
 from tensorflow.keras.optimizers import RMSprop, Adam
 import matplotlib.pyplot as plt
