@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # data to plot
-n_groups = 3
-acc_train = (0.87, 0.86, 0.85)
-acc_test = (0.87, 0.8, 0.82)
+n_groups = 4
+acc_train = (0.9, 0.84, 0.87, 0.85)
+acc_test = (0.87, 0.8, 0.8, 0.76)
 
 # create plot
 fig, ax = plt.subplots()
@@ -25,7 +25,7 @@ rects2 = plt.bar(index + bar_width, acc_test, bar_width,
 plt.xlabel('Dataset')
 plt.ylabel('Accuracies')
 plt.title('Scores by dataset')
-plt.xticks(index + bar_width, ('Lateral', 'Frontal', 'Single'))
+plt.xticks(index + bar_width, ('Lateral', 'Frontal', 'Single', 'Paralel'))
 plt.ylim(ymax=1, ymin=0.6)
 plt.legend()
 

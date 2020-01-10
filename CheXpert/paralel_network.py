@@ -50,9 +50,9 @@ def generate_generator_multiple(generator, dt1, dt2, batch_size, img_height, img
 
 
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
-                                   # width_shift_range=0.2,
+                                   width_shift_range=0.2,
                                    # height_shift_range=0.2,
-                                   # shear_range=0.2,
+                                   shear_range=0.2,
                                    zoom_range=0.2,
                                    horizontal_flip=True,
                                    # fill_mode='nearest'
@@ -109,8 +109,8 @@ model2 = tf.keras.models.Sequential([
 
 combined = tf.keras.layers.concatenate([model1.output, model2.output])
 
-z = tf.keras.layers.BatchNormalization() (combined)
-z = tf.keras.layers.Dense(512, activation='relu') (z)
+# z = tf.keras.layers.BatchNormalization()
+z = tf.keras.layers.Dense(512, activation='relu') (combined)
 z = tf.keras.layers.BatchNormalization() (z)
 z = tf.keras.layers.Dense(14, activation='sigmoid') (z)
 
