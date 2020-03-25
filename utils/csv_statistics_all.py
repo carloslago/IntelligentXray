@@ -8,7 +8,7 @@ from pathlib import Path, PureWindowsPath
 
 p = PureWindowsPath(Path().absolute())
 
-csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid.csv'
+csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
 statistics = []
 pathologies = []
 cont = 0
@@ -22,15 +22,21 @@ with open(csv_path) as csv_file:
     cont = 0
     for row in csv_reader:
         if cont ==0:
-            pathologies = row[1:]
-            statistics = [[0,0] for x in pathologies]
+            pathologies = row[6:-1]
+            statistics = [[0, 0, 0] for x in pathologies]
         else:
-            data = row[1:]
+            data = row[6:-1]
             for i in range(len(data)):
-                if int(data[i]) == 1:
-                    statistics[i][0] += 1
+                if len(data[i]) > 0:
+                    if float(data[i]) == 1.0:
+                        statistics[i][0] += 1
+                    elif float(data[i]) == -1.0:
+                        statistics[i][1] += 1
+                    else:
+                        statistics[i][2] += 1
                 else:
-                    statistics[i][1] += 1
+                    # pass
+                    statistics[i][2] += 1
         # if cont>10: break
         cont+=1
     csv_file.close()
@@ -38,24 +44,27 @@ with open(csv_path) as csv_file:
 dict = {}
 for e in range(len(pathologies)):
     dict[pathologies[e]] = statistics[e]
-# print(json.dumps(dict, indent = 4))
+print(json.dumps(dict, indent = 4))
+# exit()
 
 positive = [x[0] for x in statistics]
-negative = [x[1] for x in statistics]
+negative = [x[2] for x in statistics]
+uncertain = [x[1] for x in statistics]
 ind = np.arange(len(pathologies))
 width = 0.3
 
-plt.figure(figsize=(25, 10))
+plt.figure(figsize=(26, 10))
 p1 = plt.bar(ind, positive, width)
 p2 = plt.bar(ind, negative, width,
              bottom=positive)
-plt.ylabel('Tests')
-plt.title('Positive and negative samples by pathologie')
+p3 = plt.bar(ind, uncertain, width,
+             bottom=np.array(positive)+np.array(negative))
+plt.ylabel('Tests', fontsize=14)
+plt.title('Positive, negative and uncertain samples by pathology', fontsize=20)
 # x_labels = [p[0:5] for p in pathologies] Names shorter
 x_labels = pathologies
-plt.xticks(ind, x_labels)
+plt.xticks(ind, x_labels, fontsize=12)
 # plt.yticks(np.arange(0, 81, 10))
-plt.legend((p1[0], p2[0]), ('Positive', 'Negative'), loc=1)
-plt.tight_layout()
+plt.legend((p1[0], p2[0], p3[0]), ('Positive', 'Negative', 'Uncertain'), loc=1, fontsize=18)
 plt.show()
 

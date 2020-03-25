@@ -33,7 +33,7 @@ train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                    )
 
 datagen = ImageDataGenerator(rescale=1. / 255)
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 
 dataframe_train = training_set
 steps_train = len(dataframe_train) / BATCH_SIZE
@@ -70,13 +70,13 @@ valid_generator = datagen.flow_from_dataframe(
     batch_size=BATCH_SIZE)
 
 inputShape = (224, 224, 3)
-model1 = tf.keras.models.Sequential([
-    tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.BatchNormalization(),
-    # tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(14, activation='sigmoid')
-])
+# model1 = tf.keras.models.Sequential([
+#     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
+#     tf.keras.layers.Flatten(),
+#     tf.keras.layers.BatchNormalization(),
+#     # tf.keras.layers.Dropout(0.5),
+#     tf.keras.layers.Dense(14, activation='sigmoid')
+# ])
 
 chanDim = -1
 

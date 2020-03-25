@@ -6,6 +6,7 @@ from tensorflow.keras.optimizers import RMSprop, Adam
 import pandas as pd
 from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
+from tensorflow.keras.utils import plot_model
 
 # gpu_options = tf.GPUOptions(allow_growth=True)
 # session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
@@ -70,13 +71,13 @@ valid_generator = datagen.flow_from_dataframe(
     batch_size=BATCH_SIZE)
 
 inputShape = (224, 224, 3)
-model1 = tf.keras.models.Sequential([
-    tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.BatchNormalization(),
-    # tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(14, activation='sigmoid')
-])
+# model1 = tf.keras.models.Sequential([
+#     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
+#     tf.keras.layers.Flatten(),
+#     tf.keras.layers.BatchNormalization(),
+#     # tf.keras.layers.Dropout(0.5),
+#     tf.keras.layers.Dense(14, activation='sigmoid')
+# ])
 
 chanDim = -1
 
@@ -97,6 +98,10 @@ model2 = tf.keras.models.Sequential([
     tf.keras.layers.BatchNormalization(),
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
+
+# plot_model(model2, to_file='model_frontal.png', show_shapes=True)
+# exit()
+
 
 model2.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc'])
 

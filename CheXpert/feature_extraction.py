@@ -35,16 +35,16 @@ steps = len(set) / BATCH_SIZE
 feature_list = []
 labels_list = []
 cont = 1
-for thing in generator:
-    for i in range(len(thing[0])):
-        img = thing[0][i]
+for batch in generator:
+    for i in range(len(batch[0])):
+        img = batch[0][i]
         img_tensor = image.img_to_array(img)
         img_tensor = np.expand_dims(img_tensor, axis=0)
         img_tensor /= 255.
         res = model.predict(img_tensor)
         feature = np.array(res)
         feature_list.append(feature.flatten())
-        labels_list.append(thing[1][i])
+        labels_list.append(batch[1][i])
     cont+=1
     if cont>steps: break
 

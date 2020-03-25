@@ -12,6 +12,8 @@ import lime
 from lime import lime_image
 from skimage.segmentation import mark_boundaries
 
+from tensorflow.keras.utils import plot_model
+
 
 def img_to_tensor(img):
     # img_tensor = image.img_to_array(img)
@@ -42,6 +44,7 @@ generator = datagen.flow_from_dataframe(
 
 path_model = os.path.join('saved_models/best_model_lateral_11_30_2019_12_42_06.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
+# plot_model(model, to_file='model.png', show_shapes=True)
 
 x,y = generator.next()
 for e in range(0,1):
@@ -49,19 +52,20 @@ for e in range(0,1):
     plt.imshow(img)
     plt.show()
     explainer = lime_image.LimeImageExplainer()
-    explanation = explainer.explain_instance(img, model.predict, labels=types, hide_color=0, num_samples=1000)
+    explanation = explainer.explain_instance(img, model.predict, labels=types, hide_color=0, num_samples=1000, top_labels=5)
     img_tensor = img_to_tensor(img)
     res = model.predict(img_tensor)
     res = np.around(res)
     res = res.astype(int)[0]
-    for i in explanation.top_labels:
+    for i in explanation.top_labels: # Gets more interesting label positions
         temp, mask = explanation.get_image_and_mask(i, positive_only=False, num_features=5,
                                                     hide_rest=False
                                                     ,min_weight=0.05
                                                      )
         plt.title("Predicted: %d, Original: %d, Pathologie: %s"%(int(res[i]), int(y[e][i]),types[i]))
-        plt.imshow(x[e] / 2 + 0.5)
-        plt.imshow(mark_boundaries(temp / 2 + 0.5, mask))
+        # plt.imshow(x[e] / 2 + 0.5)
+        plt.imshow(x[e])
+        plt.imshow(mark_boundaries(temp, mask))
         plt.show()
 
 
