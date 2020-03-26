@@ -19,7 +19,7 @@ types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opaci
          'Fracture', 'Support_Devices']
 
 datagen = ImageDataGenerator(rescale=1. / 255)
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_lateral.csv")
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_all.csv")
 validation_generator = datagen.flow_from_dataframe(
     dataframe=valid_set,
     directory="",
@@ -34,9 +34,9 @@ validation_generator = datagen.flow_from_dataframe(
 
 # print(valid_set.head)
 valid_set = valid_set.drop(["Path"], axis=1)
-path_model = os.path.join('saved_models/best_model_lateral_11_30_2019_12_42_06.h5')
+path_model = os.path.join('saved_models/best_model_all_03_25_2020_21_35_48.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
-print(model.summary())
+# print(model.summary())
 
 Y_pred = model.predict_generator(validation_generator, len(valid_set) / 8)
 # print(Y_pred)
@@ -68,6 +68,7 @@ for i in range(len(cm)):
 
 
 sorted_acc = sorted(accs.items(), key=lambda k: k[1])
+# sorted_acc = accs.items()
 accs = collections.OrderedDict(sorted_acc)
 
 print("Overall acc %.5f"%(float(tot/len(types))))
@@ -76,8 +77,8 @@ print(list(accs.values()))
 plt.barh(list(accs.keys()), list(accs.values()), align='center')
 plt.yticks(list(accs.keys()))
 plt.xlabel('Accuracy')
-plt.title('Model performance by pathologie')
-plt.xlim(right=1, left=0.5)
+plt.title('Model performance by pathology')
+plt.xlim(right=1, left=0)
 
 plt.show()
 

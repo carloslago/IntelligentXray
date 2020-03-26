@@ -6,6 +6,8 @@ from tensorflow.keras.optimizers import RMSprop, Adam
 import pandas as pd
 from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
+from functions import *
+from tensorflow.keras.utils import plot_model
 
 # gpu_options = tf.GPUOptions(allow_growth=True)
 # session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
@@ -67,7 +69,7 @@ valid_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/valid_paralel_l
 
 
 
-BATCH_SIZE = 8
+BATCH_SIZE = 128
 
 dataframe_train = training_set_frontal
 steps_train = len(dataframe_train) / BATCH_SIZE
@@ -116,7 +118,9 @@ z = tf.keras.layers.Dense(14, activation='sigmoid') (z)
 
 model = tf.keras.Model(inputs=[model1.input, model2.input], outputs=z)
 
-print(model.summary())
+# plot_model(model, to_file='model_parallel.png', show_shapes=True)
+# exit()
+# print(model.summary())
 
 inputgenerator=generate_generator_multiple(generator=train_dataGen,
                                            dt1=training_set_frontal,
@@ -134,14 +138,14 @@ testgenerator=generate_generator_multiple(generator=test_imgen,
 
 
 
-model.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc'])
+model.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc',  f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_paralel' + date + '.csv')
 #min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
 # early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1, restore_best_weights=True)
-early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
+# early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
 model_path = 'saved_models/best_model_paralel' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
 history = model.fit_generator(inputgenerator, epochs=20,

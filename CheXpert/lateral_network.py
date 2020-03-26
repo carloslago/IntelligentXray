@@ -6,6 +6,7 @@ from tensorflow.keras.optimizers import RMSprop, Adam
 import pandas as pd
 from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
+from functions import *
 
 # gpu_options = tf.GPUOptions(allow_growth=True)
 # session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
@@ -98,14 +99,12 @@ model2 = tf.keras.models.Sequential([
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
 
-model2.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc'])
+model2.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_lateral' + date + '.csv')
-#min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
-# early_stop = EarlyStopping(monitor='val_loss', min_delta=0.1, patience=3, mode='min', verbose=1, restore_best_weights=True)
-early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
+# early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=3, mode='min', restore_best_weights=True)
 model_path = 'saved_models/best_model_lateral' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
 history = model2.fit_generator(train_generator, epochs=15,
