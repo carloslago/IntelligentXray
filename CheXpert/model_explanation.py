@@ -38,11 +38,11 @@ generator = datagen.flow_from_dataframe(
     class_mode="raw",
     color_mode="rgb",
     target_size=(224, 224),
-    shuffle=True,
+    shuffle=False,
     batch_size=8)
 
 
-path_model = os.path.join('saved_models/best_model_lateral_11_30_2019_12_42_06.h5')
+path_model = os.path.join('saved_models/best_model_lateral_03_25_2020_21_11_32.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
 # plot_model(model, to_file='model.png', show_shapes=True)
 
@@ -60,7 +60,7 @@ for e in range(0,1):
     for i in explanation.top_labels: # Gets more interesting label positions
         temp, mask = explanation.get_image_and_mask(i, positive_only=False, num_features=5,
                                                     hide_rest=False
-                                                    ,min_weight=0.05
+                                                    ,min_weight=0.15
                                                      )
         plt.title("Predicted: %d, Original: %d, Pathologie: %s"%(int(res[i]), int(y[e][i]),types[i]))
         # plt.imshow(x[e] / 2 + 0.5)

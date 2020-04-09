@@ -51,25 +51,36 @@ def generate_generator_multiple(generator, dt1, dt2, batch_size, img_height, img
         yield [X1i[0], X2i[0]], X2i[1]  # Yield both images and their mutual label
 
 
+# train_dataGen = ImageDataGenerator(rescale=1. / 255,
+#                                    width_shift_range=0.2,
+#                                    # height_shift_range=0.2,
+#                                    shear_range=0.2,
+#                                    zoom_range=0.2,
+#                                    horizontal_flip=True,
+#                                    # fill_mode='nearest'
+#                                    )
+
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
-                                   width_shift_range=0.2,
-                                   # height_shift_range=0.2,
-                                   shear_range=0.2,
-                                   zoom_range=0.2,
-                                   horizontal_flip=True,
-                                   # fill_mode='nearest'
+                                horizontal_flip=True,
+                                zoom_range=0.25,
+                               rotation_range=15,
+                               width_shift_range=.2,
+                               height_shift_range=.2,
+                                shear_range=.2,
+                                brightness_range=[0.8,1.2]
+                                # samplewise_center=True
                                    )
 
 test_imgen = ImageDataGenerator(rescale = 1./255)
 
 training_set_frontal = pd.read_csv("CheXpert-v1.0-small/csv/paralel/train_paralel_frontal.csv")
 training_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/train_paralel_lateral.csv")
-valid_set_frontal = pd.read_csv("CheXpert-v1.0-small/csv/paralel/valid_paralel_frontal.csv")
-valid_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/valid_paralel_lateral.csv")
+valid_set_frontal = pd.read_csv("CheXpert-v1.0-small/csv/paralel/past/valid_paralel_frontal.csv")
+valid_set_lateral = pd.read_csv("CheXpert-v1.0-small/csv/paralel/past/valid_paralel_lateral.csv")
 
 
 
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 
 dataframe_train = training_set_frontal
 steps_train = len(dataframe_train) / BATCH_SIZE
@@ -148,10 +159,11 @@ csv_logger = CSVLogger('logs/log_paralel' + date + '.csv')
 # early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
 model_path = 'saved_models/best_model_paralel' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
-history = model.fit_generator(inputgenerator, epochs=20,
+history = model.fit_generator(inputgenerator, epochs=25,
                                steps_per_epoch=steps_train,
                                validation_data=testgenerator,
                                validation_steps=steps_valid,
+                                verbose=2,
                                callbacks=[csv_logger, mc])
 
 plt.plot(history.history['acc'])
