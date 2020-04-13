@@ -18,23 +18,27 @@ types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opaci
          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
          'Fracture', 'Support_Devices']
 
+types2 = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effusion']
+
 datagen = ImageDataGenerator(rescale=1. / 255)
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_all.csv")
+# valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_all.csv")
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3.csv")[28000:]
 validation_generator = datagen.flow_from_dataframe(
     dataframe=valid_set,
     directory="",
     x_col="Path",
-    y_col=types,
-    classes=types,
+    y_col=types2,
+    classes=types2,
     class_mode="raw",
     color_mode="rgb",
     target_size=(224, 224),
     shuffle=False,
     batch_size=8)
 
+
 # print(valid_set.head)
 valid_set = valid_set.drop(["Path"], axis=1)
-path_model = os.path.join('saved_models/best_model_all_03_25_2020_21_35_48.h5')
+path_model = os.path.join('saved_models/best_model_all_04_10_2020_19_44_09.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
 # print(model.summary())
 
@@ -49,29 +53,31 @@ cm = multilabel_confusion_matrix(y_test, y_pred)
 tot = 0
 accs = {}
 
-for i in range(len(types)): types[i] = types[i][0:15]
+# for i in range(len(types)): types[i] = types[i][0:15]
+# # print(types)
+# # exit()
 for i in range(len(cm)):
     good = cm[i][0][0]+cm[i][1][1]
     total = sum(cm[i][0]) + sum(cm[i][1])
     acc = good/total
-    accs[types[i]] = acc
+    accs[types2[i]] = acc
     tot += acc
     # print("Pathologie %s - %.2f" % (types[i], acc))
     # print(cm[i])
     # print('\n')
 
-    # plt.figure()
-    # plot_confusion_matrix(cm[i])
-    # plt.xticks(range(2), ['Normal', types[i]], fontsize=16)
-    # plt.yticks(range(2), ['Normal', types[i]], fontsize=16)
-    # plt.show()
+    plt.figure()
+    plot_confusion_matrix(cm[i])
+    plt.xticks(range(2), ['Normal', types2[i]], fontsize=16)
+    plt.yticks(range(2), ['Normal', types2[i]], fontsize=16)
+    plt.show()
 
 
 sorted_acc = sorted(accs.items(), key=lambda k: k[1])
 # sorted_acc = accs.items()
 accs = collections.OrderedDict(sorted_acc)
 
-print("Overall acc %.5f"%(float(tot/len(types))))
+print("Overall acc %.5f"%(float(tot/len(types2))))
 print(list(accs.values()))
 
 plt.barh(list(accs.keys()), list(accs.values()), align='center')

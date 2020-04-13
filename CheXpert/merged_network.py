@@ -8,13 +8,8 @@ from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
 from functions import *
 
-# gpu_options = tf.GPUOptions(allow_growth=True)
-# session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
-
-train_dir = os.path.join('CheXpert-v1.0-small/train')
-val_dir = os.path.join('CheXpert-v1.0-small/valid')
-training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3.csv")
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_all.csv")
+training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_4_3.csv")
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_all.csv")
 
 # types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
 #          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
@@ -22,14 +17,6 @@ valid_set = pd.read_csv("CheXpert-v1.0-small/csv/original/valid_all.csv")
 
 types = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effusion']
 
-'''Possible augmentations
-    zca_whitening - Less redundancy in the image is intended to better highlight the structures and features in the image to the learning algorithm. related with PCA
-    contrast_stretching - ontrast Stretching takes the approach of analyzing the distribution of pixel densities in an image and then “rescales the image to include all intensities that fall within the 2nd and 98th percentiles.”
-    histogram_equalization - increases contrast in images by detecting the distribution of pixel densities in an image
-    adaptive_equalization - differs from regular histogram equalization in that several different histograms are computed, each corresponding to a different section of the image;
-     however, it has a tendency to over-amplify noise in otherwise uninteresting sections.
-
-'''
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                 horizontal_flip=True,
                                 zoom_range=0.2
@@ -86,8 +73,10 @@ valid_generator = datagen.flow_from_dataframe(
 inputShape = (224, 224, 3)
 model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Flatten(),
+    # tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.GlobalAveragePooling2D(),
+    # tf.keras.layers.Flatten(),
+    # tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.BatchNormalization(),
     # tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(len(types), activation='sigmoid')
@@ -110,7 +99,7 @@ chanDim = -1
 #     tf.keras.layers.Flatten(),
 #     tf.keras.layers.Dense(512, activation='relu'),
 #     tf.keras.layers.BatchNormalization(),
-#     tf.keras.layers.Dense(14, activation='sigmoid')
+#     tf.keras.layers.Dense(len(types), activation='sigmoid')
 # ])
 
 model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
@@ -119,7 +108,7 @@ date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_all' + date + '.csv')
 #min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
-early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=5, mode='max', verbose=1, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=4, mode='min', verbose=1, restore_best_weights=True)
 # early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
 model_path = 'saved_models/best_model_all' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
@@ -127,6 +116,7 @@ history = model1.fit_generator(train_generator, epochs=15,
                                steps_per_epoch=steps_train,
                                validation_data=valid_generator,
                                validation_steps=steps_valid,
+                               verbose=1,
                                callbacks=[csv_logger, mc, early_stop])
 
 plt.plot(history.history['acc'])

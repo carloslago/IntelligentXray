@@ -8,7 +8,7 @@ from pathlib import Path, PureWindowsPath
 
 p = PureWindowsPath(Path().absolute())
 
-csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid.csv'
+csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_all_3_3.csv'
 statistics = []
 pathologies = []
 cont = 0

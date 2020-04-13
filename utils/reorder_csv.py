@@ -13,17 +13,17 @@ types_index = []
 
 option = 'all'
 known_frontal = 4
-known_lateral = 3
+known_lateral = 4
 csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
 csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_'+option+'_'+str(known_frontal)\
-            +'_'+str(known_lateral)+'.csv'
+            +'_'+str(known_lateral)+'ones.csv'
 # csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid_all.csv'
 # csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\valid_all.csv'
 
-# u_zeros = [0, 2, 3, 4, 6, 10, 12, 13]
-# u_ones = [1, 5, 7, 8, 9, 11]
-u_zeros = [i for i in range(14)]
-u_ones = []
+u_zeros = [0, 2, 3, 4, 6, 10, 12, 13]
+u_ones = [1, 5, 7, 8, 9, 11]
+# u_zeros = [i for i in range(14)]
+# u_ones = []
 
 pathologies = []
 cont = 0
@@ -83,6 +83,7 @@ with open(csv_path) as csv_file:
 
 print(cont)
 print(len(imgs))
+exit()
 # exit()
 with open(csv_write, 'w', newline='') as csvFile:
     writer = csv.writer(csvFile)
