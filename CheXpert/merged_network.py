@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
 from functions import *
 
-training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_4_3.csv")
+training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3.csv")
 valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_all.csv")
 
 # types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
