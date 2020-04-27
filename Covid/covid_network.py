@@ -7,7 +7,7 @@ import pandas as pd
 from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
 from CheXpert.functions import *
-
+from tensorflow.keras.utils import plot_model
 
 training_set = pd.read_csv("dataset/train.csv")
 valid_set = pd.read_csv("dataset/test.csv")
@@ -63,25 +63,8 @@ model1 = tf.keras.models.Sequential([
     tf.keras.layers.Dense(3, activation='sigmoid')
 ])
 
-# chanDim = -1
-#
-# model2 = tf.keras.models.Sequential([
-#     tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=inputShape),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(2, 2),
-#
-#     tf.keras.layers.Flatten(),
-#     tf.keras.layers.Dense(512, activation='relu'),
-#     tf.keras.layers.BatchNormalization(),
-#     tf.keras.layers.Dense(14, activation='sigmoid')
-# ])
+# plot_model(model1, to_file='model_dropout.png', show_shapes=True)
+# exit()
 
 model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
 

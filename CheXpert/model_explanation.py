@@ -42,7 +42,7 @@ generator = datagen.flow_from_dataframe(
     batch_size=8)
 
 
-path_model = os.path.join('saved_models/best_model_lateral_03_25_2020_21_11_32.h5')
+path_model = os.path.join('saved_models/past/best_model_lateral_03_25_2020_21_11_32.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
 # plot_model(model, to_file='model.png', show_shapes=True)
 

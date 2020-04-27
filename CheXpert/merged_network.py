@@ -7,9 +7,10 @@ import pandas as pd
 from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
 from functions import *
+from tensorflow.keras.utils import plot_model
 
-training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3.csv")
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_all.csv")
+training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3_mix.csv")
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_mix.csv")
 
 # types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
 #          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
@@ -19,8 +20,15 @@ types = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effus
 
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                 horizontal_flip=True,
-                                zoom_range=0.2
+                                zoom_range=0.2,
+                                # rotation_range=20,
+                                # width_shift_range=.2,
+                                # height_shift_range=.2,
+                                # preprocessing_function=tf.keras.applications.densenet.preprocess_input
                                    )
+
+
+
 
 # train_dataGen = ImageDataGenerator(rescale=1. / 255,
 #                                 horizontal_flip=True,
@@ -73,50 +81,32 @@ valid_generator = datagen.flow_from_dataframe(
 inputShape = (224, 224, 3)
 model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
-    # tf.keras.layers.BatchNormalization(),
+    # tf.keras.layers.GlobalAveragePooling2D(activity_regularizer=tf.keras.regularizers.l2(0.001)),
     tf.keras.layers.GlobalAveragePooling2D(),
     # tf.keras.layers.Flatten(),
-    # tf.keras.layers.Dense(512, activation='relu'),
-    tf.keras.layers.BatchNormalization(),
-    # tf.keras.layers.Dropout(0.5),
+    # tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+    tf.keras.layers.Dense(128, activation='relu'),
+    # tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(len(types), activation='sigmoid')
 ])
-
-chanDim = -1
-
-# model2 = tf.keras.models.Sequential([
-#     tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=inputShape),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(2, 2),
-#
-#     tf.keras.layers.Flatten(),
-#     tf.keras.layers.Dense(512, activation='relu'),
-#     tf.keras.layers.BatchNormalization(),
-#     tf.keras.layers.Dense(len(types), activation='sigmoid')
-# ])
+# plot_model(model1, to_file='model_complex.png', show_shapes=True)
+# exit()
 
 model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
+# model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', tf.keras.metrics.AUC()])
 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 
 csv_logger = CSVLogger('logs/log_all' + date + '.csv')
-#min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
-early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=4, mode='min', verbose=1, restore_best_weights=True)
-# early_stop = EarlyStopping(monitor='val_acc', baseline=0.85, patience=0, verbose=1)
+early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=5, mode='min', verbose=1, restore_best_weights=True)
 model_path = 'saved_models/best_model_all' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)
-history = model1.fit_generator(train_generator, epochs=15,
+history = model1.fit_generator(train_generator, epochs=25,
                                steps_per_epoch=steps_train,
                                validation_data=valid_generator,
                                validation_steps=steps_valid,
-                               verbose=1,
+                               verbose=2,
                                callbacks=[csv_logger, mc, early_stop])
 
 plt.plot(history.history['acc'])
