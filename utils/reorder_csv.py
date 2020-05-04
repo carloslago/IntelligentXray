@@ -12,9 +12,11 @@ types_index = []
 
 
 option = 'all'
-known_frontal = 3
-known_lateral = 3
+known_frontal = 2
+known_lateral = 1
 csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
+# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_'+option+'_'+str(known_frontal)\
+#             +'_'+str(known_lateral)+'.csv'
 csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_'+option+'_'+str(known_frontal)\
             +'_'+str(known_lateral)+'_mix.csv'
 # csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid_all.csv'

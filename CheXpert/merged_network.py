@@ -9,7 +9,7 @@ from datetime import datetime
 from functions import *
 from tensorflow.keras.utils import plot_model
 
-training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3_mix.csv")
+training_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_2_1_mix.csv")
 valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_mix.csv")
 
 # types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
@@ -85,9 +85,9 @@ model1 = tf.keras.models.Sequential([
     tf.keras.layers.GlobalAveragePooling2D(),
     # tf.keras.layers.Flatten(),
     # tf.keras.layers.Dense(256, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
-    tf.keras.layers.Dense(128, activation='relu'),
+    # tf.keras.layers.Dense(128, activation='relu'),
     # tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Dropout(0.3),
+    # tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(len(types), activation='sigmoid')
 ])
 # plot_model(model1, to_file='model_complex.png', show_shapes=True)
