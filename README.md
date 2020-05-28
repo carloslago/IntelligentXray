@@ -55,7 +55,7 @@ The datasets used for the project are the following:
 
 1. Clone the repository
 ```sh
-git clone https://github.com/carloslago/Ulcers_Prototype.git
+git clone https://github.com/carloslago/IntelligentXray.git
 ```
 
 2. Install Python packages
