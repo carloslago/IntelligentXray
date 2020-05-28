@@ -8,9 +8,6 @@ from tensorflow.keras.callbacks import CSVLogger, EarlyStopping, ModelCheckpoint
 from datetime import datetime
 from functions import *
 
-# gpu_options = tf.GPUOptions(allow_growth=True)
-# session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
-
 train_dir = os.path.join('CheXpert-v1.0-small/train')
 val_dir = os.path.join('CheXpert-v1.0-small/valid')
 training_set = pd.read_csv("CheXpert-v1.0-small/csv/top/train_lateral_5.csv")
@@ -20,14 +17,6 @@ types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opaci
          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
          'Fracture', 'Support_Devices']
 
-'''Possible augmentations
-    zca_whitening - Less redundancy in the image is intended to better highlight the structures and features in the image to the learning algorithm. related with PCA
-    contrast_stretching - ontrast Stretching takes the approach of analyzing the distribution of pixel densities in an image and then “rescales the image to include all intensities that fall within the 2nd and 98th percentiles.”
-    histogram_equalization - increases contrast in images by detecting the distribution of pixel densities in an image
-    adaptive_equalization - differs from regular histogram equalization in that several different histograms are computed, each corresponding to a different section of the image;
-     however, it has a tendency to over-amplify noise in otherwise uninteresting sections.
-
-'''
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                 horizontal_flip=True,
                                 zoom_range=0.2
@@ -49,13 +38,6 @@ train_generator = train_dataGen.flow_from_dataframe(
     batch_size=BATCH_SIZE,
     shuffle=True)
 
-# x,y = train_generator.next()
-# for i in range(0,4):
-#     image = x[i]
-#     plt.imshow(image)
-#     plt.show()
-
-# test_set = pd.concat([training_set[5400:], valid_set])
 test_set = valid_set
 dataframe_valid = test_set
 steps_valid = len(dataframe_valid) / BATCH_SIZE
@@ -75,7 +57,6 @@ model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
     tf.keras.layers.Flatten(),
     tf.keras.layers.BatchNormalization(),
-    # tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
 

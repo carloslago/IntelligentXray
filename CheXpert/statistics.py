@@ -22,7 +22,7 @@ types2 = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effu
 
 datagen = ImageDataGenerator(rescale=1. / 255)
 # valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_all.csv")
-valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/train_all_3_3.csv")[28000:]
+valid_set = pd.read_csv("CheXpert-v1.0-small/csv/pathologies/valid_mix.csv")
 validation_generator = datagen.flow_from_dataframe(
     dataframe=valid_set,
     directory="",
@@ -38,7 +38,7 @@ validation_generator = datagen.flow_from_dataframe(
 
 # print(valid_set.head)
 valid_set = valid_set.drop(["Path"], axis=1)
-path_model = os.path.join('saved_models/best_model_all_04_10_2020_19_44_09.h5')
+path_model = os.path.join('saved_models/best_model_all_05_10_2020_13_06_50.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
 # print(model.summary())
 

@@ -20,15 +20,13 @@ types = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effus
 types_index = []
 
 option = 'all'
-known_frontal = 4
-known_lateral = 3
+known_frontal = 5
+known_lateral = 5
 csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\train.csv'
-# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_'+option+'_'+str(known_frontal)\
-#             +'_'+str(known_lateral)+'.csv'
-csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_'+option+'_'+str(known_frontal)\
-            +'_'+str(known_lateral)+'_mix_ones.csv'
-# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid_all.csv'
-# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\valid_all.csv'
+# csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\original\\valid.csv'
+# csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\train_'+option+'_'+str(known_frontal)\
+#             +'_'+str(known_lateral)+'_mix_ones.csv'
+csv_write = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\top\\valid_mix.csv'
 
 # u_zeros = [0, 2, 3, 4, 6, 10, 12, 13]
 # u_ones = [1, 5, 7, 8, 9, 11]
@@ -57,8 +55,9 @@ with open(csv_path) as csv_file:
             temp = row
             for i in range(0,len(temp)):
                 formatted = temp[i].replace(' ', '_')
+                pathologies.append(formatted)
                 if formatted in types or formatted=="Path":
-                    pathologies.append(formatted)
+
                     types_index.append(i)
             imgs.append(pathologies)
         else:
@@ -86,8 +85,19 @@ with open(csv_path) as csv_file:
                             data[i] = 0
                         new.append(data[i])
                     else:
-                        pass
-                if certain>=known and certain!=5:
+                        if len(data[i]) == 0:
+                            data[i] = 0
+                        elif int(float(data[i])) == positive:
+                            data[i] = 1
+                        elif int(float(data[i])) == uncertain:
+                            if i in u_ones:
+                                data[i] = 1
+                            else:
+                                data[i] = 0
+                        else:
+                            data[i] = 0
+                        new.append(data[i])
+                if certain>=known and certain==5:
                     imgs.append(new)
             certain = 0
         # if cont>100: break

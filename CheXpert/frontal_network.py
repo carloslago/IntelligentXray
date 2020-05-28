@@ -9,9 +9,6 @@ from datetime import datetime
 from tensorflow.keras.utils import plot_model
 from functions import *
 
-# gpu_options = tf.GPUOptions(allow_growth=True)
-# session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
-
 train_dir = os.path.join('CheXpert-v1.0-small/train')
 val_dir = os.path.join('CheXpert-v1.0-small/valid')
 training_set = pd.read_csv("CheXpert-v1.0-small/csv/top/train_frontal_6.csv")
@@ -50,13 +47,7 @@ train_generator = train_dataGen.flow_from_dataframe(
     batch_size=BATCH_SIZE,
     shuffle=True)
 
-# x,y = train_generator.next()
-# for i in range(0,4):
-#     image = x[i]
-#     plt.imshow(image)
-#     plt.show()
 
-# test_set = pd.concat([training_set[5400:], valid_set])
 test_set = valid_set
 dataframe_valid = test_set
 steps_valid = len(dataframe_valid) / BATCH_SIZE
@@ -76,39 +67,14 @@ model1 = tf.keras.models.Sequential([
     tf.keras.applications.DenseNet121(weights="imagenet", include_top=False, input_shape=inputShape),
     tf.keras.layers.Flatten(),
     tf.keras.layers.BatchNormalization(),
-    # tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(14, activation='sigmoid')
 ])
-
-chanDim = -1
-
-# model2 = tf.keras.models.Sequential([
-#     tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=inputShape),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(3, 3),
-#     tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-#     tf.keras.layers.BatchNormalization(axis=chanDim),
-#     tf.keras.layers.MaxPooling2D(2, 2),
-#
-#     tf.keras.layers.Flatten(),
-#     tf.keras.layers.Dense(512, activation='relu'),
-#     tf.keras.layers.BatchNormalization(),
-#     tf.keras.layers.Dense(14, activation='sigmoid')
-# ])
-
-# plot_model(model1, to_file='model_frontal.png', show_shapes=True)
-# exit()
 
 
 model1.compile(optimizer=Adam(lr=0.0001), loss='binary_crossentropy', metrics=['acc', f1_m, precision_m, recall_m, tf.keras.metrics.AUC()])
 
 date = datetime.now().strftime("_%m_%d_%Y_%H_%M_%S")
 csv_logger = CSVLogger('logs/log_frontal' + date + '.csv')
-#min_delta = 0.1 - quiere decir que cada epoch debe mejorar un 0.1% por lo menos, vamos de 0.82 a 0.821
 early_stop = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=3, mode='min', restore_best_weights=True)
 model_path = 'saved_models/best_model_frontal' + date + '.h5'
 mc = ModelCheckpoint(model_path, monitor='val_loss', mode='min', verbose=1)

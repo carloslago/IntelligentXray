@@ -17,8 +17,6 @@ np.random.seed(42)
 tf.random.set_seed(42)
 manual_variable_initialization(True)
 
-# p = PureWindowsPath(Path().absolute())
-# model = str(p.parents[0]) + '\\Pneuomonia\\saved_models\\best_network.h5'
 path_model = os.path.join('saved_models/best_network.h5')
 
 
@@ -29,16 +27,7 @@ train_names = os.listdir(train_dir)
 
 datagen = ImageDataGenerator(rescale=1 / 255)
 
-# training_datagen = ImageDataGenerator(rescale=1. / 255,
-#                                 horizontal_flip=True,
-#                                 zoom_range=0.25,
-#                                rotation_range=25,
-#                                width_shift_range=.2,
-#                                height_shift_range=.2,
-#                                 shear_range=.2,
-#                                 brightness_range=[0.8,1.2]
-#                                 # samplewise_center=True
-#                                    )
+
 training_datagen = ImageDataGenerator(rescale=1/255, zoom_range=0.3, rotation_range=30)
 
 train_generator = training_datagen.flow_from_directory(
@@ -66,15 +55,11 @@ for layer in model.layers:
 
 # Changing dense layers
 hidden = keras.layers.Dense(512, activation='sigmoid', name='my_dense3')(model.layers[-3].output)
-# hidden2 = keras.layers.Dropout(0.5)(hidden)
-# hidden2 = keras.layers.BatchNormalization(name="dasdad")(hidden)
 new_layer = keras.layers.Dense(1, activation='sigmoid', name='my_dense')(hidden)
 inp = model.input
-# out = new_layer(model.layers[-2].output)
 model2 = Model(inp, new_layer)
 
 model2.summary()
-# exit()
 model2.compile(loss='binary_crossentropy',
               optimizer=Adam(lr=0.001, decay=1e-5),
               metrics=['acc'])
@@ -115,8 +100,6 @@ nb_samples = len(filenames)
 Y_pred = model2.predict_generator(test_generator, nb_samples/64)
 y_pred = np.around(Y_pred)
 y_test = test_generator.classes
-# print(y_test)
-# print(y_pred)
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
 plt.figure()

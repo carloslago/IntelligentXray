@@ -9,17 +9,6 @@ from datetime import datetime
 from functions import *
 from tensorflow.keras.utils import plot_model
 
-# gpu_options = tf.GPUOptions(allow_growth=True)
-# session = tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options))
-
-# def generator_two_img(X1, X2, y, batch_size):
-#     genX1 = gen.flow(X1, y,  batch_size=batch_size, seed=1)
-#     genX2 = gen.flow(X2, y, batch_size=batch_size, seed=1)
-#     while True:
-#         X1i = genX1.next()
-#         X2i = genX2.next()
-#         yield [X1i[0], X2i[0]], X1i[1]
-
 
 types = ['No_Finding', 'Enlarged_Cardiomediastinum', 'Cardiomegaly', 'Lung_Opacity', 'Lung_Lesion', 'Edema',
          'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural_Effusion', 'Pleural_Other',
@@ -51,15 +40,6 @@ def generate_generator_multiple(generator, dt1, dt2, batch_size, img_height, img
         yield [X1i[0], X2i[0]], X2i[1]  # Yield both images and their mutual label
 
 
-# train_dataGen = ImageDataGenerator(rescale=1. / 255,
-#                                    width_shift_range=0.2,
-#                                    # height_shift_range=0.2,
-#                                    shear_range=0.2,
-#                                    zoom_range=0.2,
-#                                    horizontal_flip=True,
-#                                    # fill_mode='nearest'
-#                                    )
-
 train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                 horizontal_flip=True,
                                 zoom_range=0.25,
@@ -68,7 +48,6 @@ train_dataGen = ImageDataGenerator(rescale=1. / 255,
                                height_shift_range=.2,
                                 shear_range=.2,
                                 brightness_range=[0.8,1.2]
-                                # samplewise_center=True
                                    )
 
 test_imgen = ImageDataGenerator(rescale = 1./255)

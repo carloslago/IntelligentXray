@@ -8,7 +8,7 @@ from pathlib import Path, PureWindowsPath
 
 p = PureWindowsPath(Path().absolute())
 
-csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_all_3_3.csv'
+csv_path = str(p.parents[0]) + '\\CheXpert\\CheXpert-v1.0-small\\csv\\pathologies\\train_all_4_4_mix_ones.csv'
 statistics = []
 pathologies = []
 cont = 0
@@ -38,8 +38,8 @@ with open(csv_path) as csv_file:
 dict = {}
 for e in range(len(pathologies)):
     dict[pathologies[e]] = statistics[e]
-# print(json.dumps(dict, indent = 4))
-
+print(json.dumps(dict, indent = 4))
+exit()
 positive = [x[0] for x in statistics]
 negative = [x[1] for x in statistics]
 ind = np.arange(len(pathologies))

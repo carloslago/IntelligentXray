@@ -24,13 +24,13 @@ def img_to_tensor(img):
 
 
 types = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural_Effusion']
-true = [0, 0, 0, 1, 0]
+true = [0, 0, 1, 0, 0]
 
 
-path_model = os.path.join('saved_models/best_model_all_04_20_2020_14_21_36.h5')
+path_model = os.path.join('saved_models/best_model_all_05_10_2020_13_06_50.h5')
 model = tf.keras.models.load_model(path_model, compile=False)
 
-tensor, img = img_to_tensor("CheXpert-v1.0-small/to_explain/atelectasis_lateral.jpeg")
+tensor, img = img_to_tensor("CheXpert-v1.0-small/to_explain/consolidation_lateral.jpeg")
 plt.imshow(img)
 plt.show()
 explainer = lime_image.LimeImageExplainer()

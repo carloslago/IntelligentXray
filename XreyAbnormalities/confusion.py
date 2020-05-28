@@ -24,14 +24,6 @@ test_generator = datagen.flow_from_directory(
     batch_size=64,
     class_mode="binary"
 )
-# train_dir = os.path.join('dataset/ChinaSet_AllFiles/train')
-# train_generator = datagen.flow_from_directory(
-#     directory=train_dir,
-#     target_size=(224, 224),
-#     color_mode="grayscale",
-#     batch_size=64,
-#     class_mode="binary"
-# )
 
 
 filenames = test_generator.filenames
