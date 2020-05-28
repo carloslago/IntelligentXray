@@ -42,7 +42,7 @@ than 90% and an AUC of 0.98.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-In order to install and train the model follow the next steps:
+In order to train the models its neccesary to acquire the datasets being used and to install all the requirements.
 
 ### Datasets
 The datasets used for the project are the following:
@@ -70,9 +70,7 @@ pip install requirements.txt
 * Covid: COVID-19 network.
 * Pneuomonia: network for the pneuomina kaggle challenge.
 * XretAbnormalities: network with transfer learning from the pneumonia case.
-* sample_results: sample test results.
-* sensors: distance, thermal and gas sensor functionalities.
-* tests: here all tests performed will be saved.
+* utils: scripts to reorder datasets csv and get network statistics.
 
 
 
