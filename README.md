@@ -8,6 +8,7 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Packages](#packages)
+* [Citations](#citations)
 
 
 
@@ -32,6 +33,9 @@ an X-Ray to get a fast real-time analysis. An additional case motivated by
 the current situation has also been studied, using transfer learning to detect 
 COVID-19 and differentiate it from usual pneumonia, reaching an accuracy higher
 than 90% and an AUC of 0.98.
+
+Publication (September, 2021):  [''
+Deep Transfer Learning for Interpretable Chest X-Ray Diagnosis''](https://link-springer-com.focus.lib.kth.se/chapter/10.1007/978-3-030-86271-8_44) was accepted by HAIS 2021.
 
 ### Built With
 * [Python](https://www.python.org/)
@@ -73,6 +77,11 @@ pip install requirements.txt
 * utils: scripts to reorder datasets csv and get network statistics.
 
 
+## Citations
+Feel free to cite the following publication:
 
+```
+ @article{lago_lopez-gazpio_onieva_2021, title={Deep Transfer Learning for interpretable chest X-ray diagnosis}, DOI={10.1007/978-3-030-86271-8_44}, journal={Lecture Notes in Computer Science}, author={Lago, C. and Lopez-Gazpio, I. and Onieva, E.}, year={2021}, pages={524–537}} 
+```
 
 
