@@ -34,8 +34,7 @@ the current situation has also been studied, using transfer learning to detect
 COVID-19 and differentiate it from usual pneumonia, reaching an accuracy higher
 than 90% and an AUC of 0.98.
 
-Publication (September, 2021):  [''
-Deep Transfer Learning for Interpretable Chest X-Ray Diagnosis''](https://link-springer-com.focus.lib.kth.se/chapter/10.1007/978-3-030-86271-8_44) was accepted by HAIS 2021.
+Publication (September, 2021):  [''Deep Transfer Learning for Interpretable Chest X-Ray Diagnosis''](https://link-springer-com.focus.lib.kth.se/chapter/10.1007/978-3-030-86271-8_44) was accepted by HAIS 2021.
 
 ### Built With
 * [Python](https://www.python.org/)
